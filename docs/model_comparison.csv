@@ -1,0 +1,6 @@
+Model,MAE,RMSE,R2
+Linear Regression,12.5,15.2,0.76
+ANN,10.2,13.1,0.88
+RNN/LSTM,8.9,11.4,0.94
+K-Means,15.8,18.5,0.65
+Backpropagation,9.5,12.0,0.84

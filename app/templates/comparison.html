@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom: 10px;">📊 Model Performance Comparison</h1>
+    <p style="color: var(--text-dim); margin-bottom: 25px;">Detailed metrics comparison for each implemented algorithm.</p>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid rgba(255,255,255,0.1); color: var(--accent-blue);">
+                    <th style="padding: 15px;">Algorithm</th>
+                    <th style="padding: 15px;">MAE</th>
+                    <th style="padding: 15px;">RMSE</th>
+                    <th style="padding: 15px;">R² Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in comparison %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseout="this.style.backgroundColor='transparent'">
+                    
+                    <td style="padding: 15px; font-weight: bold;">
+                        {{ row.get('Model', row.get('model', 'N/A')) }}
+                    </td>
+                    
+                    <td style="padding: 15px;">
+                        {{ row.get('MAE', row.get('mae', '0')) }}
+                    </td>
+                    
+                    <td style="padding: 15px;">
+                        {{ row.get('RMSE', row.get('rmse', '0')) }}
+                    </td>
+                    
+                    <td style="padding: 15px; color: #2ecc71; font-weight: bold;">
+                        {{ row.get('R2', row.get('r2', row.get('R2 Score', '0'))) }}
+                    </td>
+                    
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 30px; color: var(--text-dim);">
+                        No data available. Please check model_comparison.csv
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

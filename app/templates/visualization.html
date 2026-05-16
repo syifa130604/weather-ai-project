@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 25px;">
+    <h1 style="font-size: 32px; letter-spacing: 1px;">📊 Visualization Dashboard</h1>
+    <p style="color: var(--text-dim);">Analisis mendalam performa model AI dan karakteristik dataset cuaca.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 25px;">
+    
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(0, 149, 255, 0.2);">
+        <h3 style="margin-bottom: 15px; color: var(--accent-blue); align-self: flex-start;">Training Loss Curve</h3>
+        <div style="background: white; border-radius: 15px; padding: 10px; width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;">
+            <img src="{{ url_for('static', filename='loss_curve.png') }}" alt="Loss Curve" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <p style="margin-top: 15px; font-size: 13px; color: var(--text-dim);">Menunjukkan penurunan error selama proses training model Deep Learning.</p>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(0, 149, 255, 0.2);">
+        <h3 style="margin-bottom: 15px; color: var(--accent-blue); align-self: flex-start;">Residual Plot</h3>
+        <div style="background: white; border-radius: 15px; padding: 10px; width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;">
+            <img src="{{ url_for('static', filename='residual_plot.png') }}" alt="Residual Plot" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <p style="margin-top: 15px; font-size: 13px; color: var(--text-dim);">Analisis selisih antara nilai prediksi model dengan nilai aktual.</p>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(0, 149, 255, 0.2);">
+        <h3 style="margin-bottom: 15px; color: var(--accent-blue); align-self: flex-start;">Correlation Heatmap</h3>
+        <div style="background: white; border-radius: 15px; padding: 10px; width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;">
+            <img src="{{ url_for('static', filename='heatmap.png') }}" alt="Heatmap" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <p style="margin-top: 15px; font-size: 13px; color: var(--text-dim);">Menampilkan hubungan korelasi antar variabel dalam dataset.</p>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(0, 149, 255, 0.2);">
+        <h3 style="margin-bottom: 15px; color: var(--accent-blue); align-self: flex-start;">K-Means Clustering</h3>
+        <div style="background: white; border-radius: 15px; padding: 10px; width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;">
+            <img src="{{ url_for('static', filename='kmeans.png') }}" alt="K-Means" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <p style="margin-top: 15px; font-size: 13px; color: var(--text-dim);">Segmentasi profil cuaca berdasarkan kemiripan pola data.</p>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(0, 149, 255, 0.2);">
+        <h3 style="margin-bottom: 15px; color: var(--accent-blue); align-self: flex-start;">Data Distribution (Histogram)</h3>
+        <div style="background: white; border-radius: 15px; padding: 10px; width: 100%; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;">
+            <img src="{{ url_for('static', filename='histogram.png') }}" alt="Histogram" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <p style="margin-top: 15px; font-size: 13px; color: var(--text-dim);">Menunjukkan persebaran nilai pada fitur utama dataset cuaca.</p>
+    </div>
+
+</div>
+{% endblock %}

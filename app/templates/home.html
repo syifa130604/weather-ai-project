@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <!-- Bagian Welcome & Ikon Utama -->
+    <div style="text-align: center; margin-bottom: 40px;">
+        <div class="big-icon ani-rain" style="font-size: 120px; margin-bottom: 20px;">
+            <i class="fa-solid fa-cloud-sun-rain"></i>
+        </div>
+        <h1 style="font-size: 45px; letter-spacing: 2px;">SMART WEATHER <span style="color: var(--accent-blue);">AI</span></h1>
+        <p style="font-size: 18px; color: var(--text-dim);">Multi-Algorithm Prediction System: ANN, Backprop, RNN, Regression, & K-Means</p>
+    </div>
+
+    <!-- Bagian Statistik Ringkas -->
+    <div class="weather-grid" style="margin-bottom: 30px;">
+        <div class="mini-card">
+            <i class="fa-solid fa-temperature-high ani-sun"></i>
+            <p style="margin-top:10px; color: var(--text-dim);">Real Feel</p>
+            <h2>30.5°C</h2>
+        </div>
+        <div class="mini-card">
+            <i class="fa-solid fa-wind ani-wind"></i>
+            <p style="margin-top:10px; color: var(--text-dim);">Wind Speed</p>
+            <h2>12 km/h</h2>
+        </div>
+        <div class="mini-card">
+            <i class="fa-solid fa-droplet ani-rain"></i>
+            <p style="margin-top:10px; color: var(--text-dim);">Humidity</p>
+            <h2>50%</h2>
+        </div>
+        <div class="mini-card">
+            <i class="fa-solid fa-sun ani-sun"></i>
+            <p style="margin-top:10px; color: var(--text-dim);">UV Index</p>
+            <h2>4 (Moderate)</h2>
+        </div>
+    </div>
+
+    <!-- BAGIAN BARU: TODAY'S FORECAST (Sesuai image_b02bda.png) -->
+    <div class="card" style="padding: 25px;">
+        <p style="color: var(--text-dim); font-weight: bold; text-transform: uppercase; font-size: 13px; margin-bottom: 25px; letter-spacing: 1px;">Today's Forecast</p>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; text-align: center;">
+            <!-- 6:00 AM -->
+            <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 15px;">6:00 AM</p>
+                <i class="fa-solid fa-cloud" style="font-size: 35px; color: #ecf0f1; margin-bottom: 15px;"></i>
+                <h3 style="font-size: 22px;">25°</h3>
+            </div>
+
+            <!-- 9:00 AM -->
+            <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 15px;">9:00 AM</p>
+                <i class="fa-solid fa-cloud-sun ani-sun" style="font-size: 35px; color: #ffce54; margin-bottom: 15px;"></i>
+                <h3 style="font-size: 22px;">28°</h3>
+            </div>
+
+            <!-- 12:00 PM -->
+            <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 15px;">12:00 PM</p>
+                <i class="fa-solid fa-sun ani-sun" style="font-size: 35px; color: #f1c40f; margin-bottom: 15px;"></i>
+                <h3 style="font-size: 22px;">33°</h3>
+            </div>
+
+            <!-- 3:00 PM -->
+            <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 15px;">3:00 PM</p>
+                <i class="fa-solid fa-sun ani-sun" style="font-size: 35px; color: #f1c40f; margin-bottom: 15px;"></i>
+                <h3 style="font-size: 22px;">34°</h3>
+            </div>
+
+            <!-- 6:00 PM -->
+            <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 15px;">6:00 PM</p>
+                <i class="fa-solid fa-sun ani-sun" style="font-size: 35px; color: #f39c12; margin-bottom: 15px;"></i>
+                <h3 style="font-size: 22px;">32°</h3>
+            </div>
+
+            <!-- 9:00 PM -->
+            <div style="flex: 1;">
+                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 15px;">9:00 PM</p>
+                <i class="fa-solid fa-cloud-sun" style="font-size: 35px; color: #ffce54; margin-bottom: 15px;"></i>
+                <h3 style="font-size: 22px;">30°</h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

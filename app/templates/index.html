@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Weather AI</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial;
+        }
+
+        body{
+
+            background-image: url('/static/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            min-height:100vh;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+        }
+
+        .container{
+
+            width:800px;
+            background:rgba(255,255,255,0.9);
+
+            padding:60px;
+
+            border-radius:25px;
+
+            text-align:center;
+
+            box-shadow:0 0 25px rgba(0,0,0,0.3);
+
+        }
+
+        h1{
+
+            font-size:55px;
+            margin-bottom:20px;
+
+        }
+
+        p{
+
+            font-size:24px;
+            margin-bottom:50px;
+
+        }
+
+        .btn{
+
+            display:block;
+
+            width:100%;
+
+            margin:25px 0;
+
+            padding:22px;
+
+            background:#0066ff;
+
+            color:white;
+
+            text-decoration:none;
+
+            border-radius:15px;
+
+            font-size:28px;
+
+            transition:0.3s;
+
+        }
+
+        .btn:hover{
+
+            background:#004ecc;
+            transform:scale(1.03);
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>⛅ Weather Prediction AI</h1>
+
+        <p>
+            Artificial Intelligence Weather Forecasting System
+        </p>
+
+        <a href="/predict" class="btn">
+            Predict Weather
+        </a>
+
+        <a href="/visualization" class="btn">
+            Visualization Dashboard
+        </a>
+
+        <a href="/comparison" class="btn">
+            Model Comparison
+        </a>
+
+    </div>
+
+</body>
+
+</html>

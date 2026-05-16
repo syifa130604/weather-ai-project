@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather AI Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-overlay: rgba(11, 19, 30, 0.85);
+            --bg-card: rgba(32, 43, 59, 0.7);
+            --accent-blue: #0095ff;
+            --text-main: #ffffff;
+            --text-dim: #9399a2;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            background-color: #0b131e;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background Video Container */
+        .video-bg {
+            position: fixed;
+            right: 0; bottom: 0;
+            min-width: 100%; min-height: 100%;
+            z-index: -1;
+            filter: brightness(0.4);
+        }
+
+        .main-container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 20px;
+            z-index: 1;
+        }
+
+        /* Sidebar Ala image_b18d74.png */
+        .sidebar {
+            width: 100px;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 0;
+            height: calc(100vh - 40px);
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar a {
+            color: var(--text-dim);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 35px;
+            font-size: 11px;
+            transition: 0.3s;
+        }
+
+        .sidebar a i { font-size: 24px; transition: 0.3s; }
+        .sidebar a:hover i { color: var(--accent-blue); transform: scale(1.2); }
+
+        /* Content Area */
+        .content { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Big Weather Illustrations */
+        .big-weather-icon {
+            font-size: 120px;
+            margin: 20px 0;
+            display: block;
+            text-align: center;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+        }
+
+        /* Animations */
+        .ani-sun { color: #ffce54; animation: rotate 20s linear infinite; }
+        .ani-rain { color: #3498db; animation: bounce 2s infinite; }
+        .ani-bolt { color: #f1c40f; animation: flash 1s infinite; }
+        .ani-wind { color: #81ecec; animation: slide 3s infinite; }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes slide { 0% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 100% { transform: translateX(-10px); } }
+
+        /* Form & Table */
+        input { width: 100%; padding: 15px; border-radius: 12px; border: none; background: rgba(255,255,255,0.1); color: white; margin-bottom: 10px; }
+        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--accent-blue); color: white; font-weight: bold; cursor: pointer; }
+        
+        .weather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .mini-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; text-align: center; }
+
+        .status-box {
+            background: linear-gradient(135deg, rgba(0, 149, 255, 0.4), rgba(0, 85, 255, 0.4));
+            padding: 40px; border-radius: 25px; text-align: center; margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Video Background (Default: Hujan/Rain) -->
+    <video autoplay muted loop class="video-bg" id="bgVideo">
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-falling-raindrops-on-a-glass-surface-1534-large.mp4" type="video/mp4">
+    </video>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div style="font-size: 30px; margin-bottom: 40px;">🌦</div>
+            <a href="/"><i class="fa-solid fa-house"></i>Home</a>
+            <a href="/predict-page"><i class="fa-solid fa-magnifying-glass-chart"></i>Predict</a>
+            <a href="/visualization"><i class="fa-solid fa-chart-pie"></i>Stats</a>
+            <a href="/comparison"><i class="fa-solid fa-layer-group"></i>Compare</a>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script>
+        // Logika sederhana ganti video berdasarkan status jika ada
+        const status = "{{ weather_status }}";
+        const video = document.getElementById('bgVideo');
+        if(status.includes("Cerah")) {
+            video.src = "https://assets.mixkit.co/videos/preview/mixkit-clouds-moving-fast-in-a-blue-sky-23533-large.mp4";
+        } else if(status.includes("Badai")) {
+            video.src = "https://assets.mixkit.co/videos/preview/mixkit-lightning-strikes-in-the-dark-sky-1910-large.mp4";
+        }
+    </script>
+</body>
+</html>
