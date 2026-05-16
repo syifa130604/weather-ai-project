@@ -16,4 +16,4 @@ COPY --chown=user . .
 EXPOSE 7860
 
 # GANTI "nama_folder" dengan nama folder kamu yang sebenarnya (misal: src, backend, atau dll)
-CMD ["gunicorn", "-b", "0.0.0.0:7860", "nama_folder.app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:7860", "app.app:app"]
