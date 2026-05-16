@@ -4,5 +4,5 @@ pandas
 scikit-learn
 tensorflow-cpu
 joblib
-matplotlib
 gunicorn
+matplotlib
