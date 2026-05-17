@@ -19,9 +19,9 @@
 </div>
 
 {% if weather_status and "⚠️" in weather_status %}
-<div class="status-box" style="margin-top: 20px; border-left: 5px solid #ff4757;">
-    <h1 style="font-size: 26px; margin-bottom: 10px; color: #ff4757;">{{ weather_status }}</h1>
-    <p>Silakan periksa konfigurasi data atau log server backend kamu.</p>
+<div class="status-box" style="margin-top: 20px; border-left: 5px solid #ff4757; text-align: left; padding: 20px;">
+    <h1 style="font-size: 22px; margin-bottom: 10px; color: #ff4757;">{{ weather_status }}</h1>
+    <p style="color: var(--text-dim); font-size: 14px;">Silakan periksa ketersediaan berkas arsitektur AI Anda di dalam folder models server.</p>
 </div>
 {% endif %}
 
