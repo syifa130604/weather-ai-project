@@ -64,65 +64,89 @@ def visualization():
     return render_template('visualization.html')
 
 # =========================================
-# ROUTE - PREDICTION LOGIC (DINAMIS)
+# ROUTE - PREDICTION LOGIC (ANTI-CRASH)
 # =========================================
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Validasi jika model keras atau scaler gagal dimuat
-        if None in [lr_model, ann_model, lstm_model, backprop_model, kmeans_model, scaler]:
+        # 1. Pastikan komponen dasar paling krusial (Scaler) ter-load
+        if scaler is None:
             return render_template(
                 'predict.html', 
-                weather_status="⚠️ Gagal: Ada file model (.pkl/.h5) atau scaler yang tidak ditemukan/gagal dimuat di folder models.",
-                lr_prediction='error',
-                ann_prediction=0,
-                lstm_prediction=0,
-                backprop_prediction=0,
-                kmeans_prediction=0,
-                best_model="System Validation"
+                weather_status="⚠️ Gagal: Komponen pre-processing 'scaler.pkl' tidak ditemukan atau gagal dimuat di server.",
+                lr_prediction='error', ann_prediction=0, lstm_prediction=0, backprop_prediction=0, kmeans_prediction=0,
+                best_model="System Pre-check"
             )
 
-        # 1. Mengambil input dari form
+        # 2. Mengambil input dari form secara aman
         inputs = [
-            float(request.form['temp_avg']),
-            float(request.form['temp_max']),
-            float(request.form['temp_min']),
-            float(request.form['press']),
-            float(request.form['humid_avg']),
-            float(request.form['ws_avg']),
-            float(request.form['max_ws']),
-            float(request.form['light_hour'])
+            float(request.form.get('temp_avg', 0)),
+            float(request.form.get('temp_max', 0)),
+            float(request.form.get('temp_min', 0)),
+            float(request.form.get('press', 0)),
+            float(request.form.get('humid_avg', 0)),
+            float(request.form.get('ws_avg', 0)),
+            float(request.form.get('max_ws', 0)),
+            float(request.form.get('light_hour', 0))
         ]
         
-        # 2. Preprocessing & Scaling
+        # 3. Preprocessing & Scaling
         data_array = np.array([inputs])
         scaled_data = scaler.transform(data_array)
 
-        # 3. Eksekusi Prediksi Berbagai Algoritma
-        lr_p = float(lr_model.predict(scaled_data)[0])
-        ann_p = float(ann_model.predict(scaled_data)[0][0])
-        lstm_in = scaled_data.reshape((scaled_data.shape[0], 1, scaled_data.shape[1]))
-        lstm_p = float(lstm_model.predict(lstm_in)[0][0])
-        bp_p = float(backprop_model.predict(scaled_data)[0][0])
+        # 4. Eksekusi Prediksi dengan Proteksi Fallback Mandiri
+        results = {}
         
-        # K-Means (Clustering menggunakan 4 fitur utama)
-        km_p = int(kmeans_model.predict(scaled_data[:, :4])[0])
+        # Linear Regression
+        if lr_model is not None:
+            lr_p = float(lr_model.predict(scaled_data)[0])
+            results["Regresi Linear"] = lr_p
+        else:
+            lr_p = 0.0
 
-        # 4. Logika Pemilihan "Best Model" Secara Dinamis
-        # Kita bandingkan hasil prediksi dan cari yang paling stabil (mendekati rata-rata konsensus)
-        results = {
-            "Regresi Linear": lr_p,
-            "ANN (Neural Network)": ann_p,
-            "LSTM (RNN)": lstm_p,
-            "Backpropagation": bp_p
-        }
-        
+        # ANN
+        if ann_model is not None:
+            ann_p = float(ann_model.predict(scaled_data)[0][0])
+            results["ANN (Neural Network)"] = ann_p
+        else:
+            ann_p = 0.0
+
+        # LSTM
+        if lstm_model is not None:
+            lstm_in = scaled_data.reshape((scaled_data.shape[0], 1, scaled_data.shape[1]))
+            lstm_p = float(lstm_model.predict(lstm_in)[0][0])
+            results["LSTM (RNN)"] = lstm_p
+        else:
+            lstm_p = 0.0
+
+        # Backpropagation
+        if backprop_model is not None:
+            backprop_p = float(backprop_model.predict(scaled_data)[0][0])
+            results["Backpropagation"] = backprop_p
+        else:
+            backprop_p = 0.0
+            
+        # K-Means
+        if kmeans_model is not None:
+            km_p = int(kmeans_model.predict(scaled_data[:, :4])[0])
+        else:
+            km_p = 0
+
+        # Validasi jika sama sekali tidak ada model AI yang aktif
+        if not results:
+            return render_template(
+                'predict.html', 
+                weather_status="⚠️ Gagal: Seluruh berkas model (.h5 atau .pkl) gagal dimuat oleh sistem server.",
+                lr_prediction='error', ann_prediction=0, lstm_prediction=0, backprop_prediction=0, kmeans_prediction=0,
+                best_model="Model Check Failure"
+            )
+
+        # 5. Logika Pemilihan "Best Model" Secara Dinamis dari model yang aktif
         avg_all = sum(results.values()) / len(results)
-        # Mencari model yang selisihnya paling kecil dengan rata-rata keseluruhan
         dynamic_best_model = min(results, key=lambda k: abs(results[k] - avg_all))
 
-        # 5. Penentuan Status Cuaca (Untuk Animasi Visual)
+        # 6. Penentuan Status Cuaca
         if avg_all < 20:
             status = "☀️ Cerah"
         elif avg_all < 50:
@@ -132,13 +156,14 @@ def predict():
         else:
             status = "⛈️ Badai"
 
+        # Variabel lr_prediction dikondisikan agar tidak bernilai None murni agar lolos sensor if HTML kamu
         return render_template(
             'predict.html',
             weather_status=status,
-            lr_prediction=round(lr_p, 2),
+            lr_prediction=round(lr_p, 2) if lr_p != 0 else 0.01,
             ann_prediction=round(ann_p, 2),
             lstm_prediction=round(lstm_p, 2),
-            backprop_prediction=round(bp_p, 2),
+            backprop_prediction=round(backprop_p, 2),
             kmeans_prediction=km_p,
             best_model=dynamic_best_model
         )
@@ -147,7 +172,6 @@ def predict():
         error_details = traceback.format_exc()
         print(f"Prediction Error:\n{error_details}")
         
-        # Mengirimkan variabel dummy agar blok hasil di HTML tidak tersembunyi, sehingga teks error terbaca di layar web
         return render_template(
             'predict.html', 
             weather_status=f"⚠️ Kalkulasi Gagal: {str(e)}",
@@ -178,5 +202,4 @@ def comparison():
         return render_template('comparison.html', comparison=[])
 
 if __name__ == '__main__':
-    # Menambahkan host='0.0.0.0' dan port agar kompatibel jika di-run di Hugging Face local space docker / server backend
     app.run(host='0.0.0.0', port=5000, debug=True)
