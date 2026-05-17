@@ -6,22 +6,22 @@
     <p class="subtitle">Multi-Algorithm Atmospheric Analysis</p>
     
     <form action="" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <input type="number" step="any" name="temp_avg" placeholder="Avg Temp" required value="{{ request.form['temp_avg'] if request.form['temp_avg'] else '' }}">
-        <input type="number" step="any" name="temp_max" placeholder="Max Temp" required value="{{ request.form['temp_max'] if request.form['temp_max'] else '' }}">
-        <input type="number" step="any" name="temp_min" placeholder="Min Temp" required value="{{ request.form['temp_min'] if request.form['temp_min'] else '' }}">
-        <input type="number" step="any" name="press" placeholder="Pressure" required value="{{ request.form['press'] if request.form['press'] else '' }}">
-        <input type="number" step="any" name="humid_avg" placeholder="Humidity" required value="{{ request.form['humid_avg'] if request.form['humid_avg'] else '' }}">
-        <input type="number" step="any" name="ws_avg" placeholder="Wind Speed" required value="{{ request.form['ws_avg'] if request.form['ws_avg'] else '' }}">
-        <input type="number" step="any" name="max_ws" placeholder="Max Wind" required value="{{ request.form['max_ws'] if request.form['max_ws'] else '' }}">
-        <input type="number" step="any" name="light_hour" placeholder="Light Hours" required value="{{ request.form['light_hour'] if request.form['light_hour'] else '' }}">
+        <input type="number" step="any" name="temp_avg" placeholder="Avg Temp" required value="{{ request.form['temp_avg'] if request.form else '' }}">
+        <input type="number" step="any" name="temp_max" placeholder="Max Temp" required value="{{ request.form['temp_max'] if request.form else '' }}">
+        <input type="number" step="any" name="temp_min" placeholder="Min Temp" required value="{{ request.form['temp_min'] if request.form else '' }}">
+        <input type="number" step="any" name="press" placeholder="Pressure" required value="{{ request.form['press'] if request.form else '' }}">
+        <input type="number" step="any" name="humid_avg" placeholder="Humidity" required value="{{ request.form['humid_avg'] if request.form else '' }}">
+        <input type="number" step="any" name="ws_avg" placeholder="Wind Speed" required value="{{ request.form['ws_avg'] if request.form else '' }}">
+        <input type="number" step="any" name="max_ws" placeholder="Max Wind" required value="{{ request.form['max_ws'] if request.form else '' }}">
+        <input type="number" step="any" name="light_hour" placeholder="Light Hours" required value="{{ request.form['light_hour'] if request.form else '' }}">
         <button type="submit" style="grid-column: span 2; cursor: pointer;">ANALYZE ATMOSPHERE</button>
     </form>
 </div>
 
-{% if weather_status %}
-<div class="status-box" style="margin-top: 20px;">
-    <h1 style="font-size: 32px; margin-bottom: 10px; color: #ff4757;">{{ weather_status }}</h1>
-    <p>Status Konsensus Terakhir / Catatan Sistem</p>
+{% if weather_status and "⚠️" in weather_status %}
+<div class="status-box" style="margin-top: 20px; border-left: 5px solid #ff4757;">
+    <h1 style="font-size: 26px; margin-bottom: 10px; color: #ff4757;">{{ weather_status }}</h1>
+    <p>Silakan periksa konfigurasi data atau log server backend kamu.</p>
 </div>
 {% endif %}
 
@@ -33,6 +33,7 @@
         {% elif "Badai" in weather_status %}<i class="fa-solid fa-cloud-bolt ani-bolt"></i>
         {% else %}<i class="fa-solid fa-cloud"></i>{% endif %}
     </div>
+    <h1 style="font-size: 55px; margin-bottom: 10px;">{{ weather_status }}</h1>
     <p>Confidence Level based on <b>{{ best_model }}</b></p>
 
     <div style="margin-top: 30px; background: rgba(0,0,0,0.2); border-radius: 20px; height: 15px; width: 80%; margin-left: 10%; overflow: hidden;">
@@ -59,6 +60,27 @@
         <div class="mini-card">
             <p>Backprop</p>
             <h2 style="color: #e67e22;">{{ backprop_prediction }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 20px; padding: 25px;">
+    <p style="color: var(--text-dim); font-weight: bold; text-transform: uppercase; font-size: 12px; margin-bottom: 25px;">Next Hours Estimation</p>
+    <div style="display: flex; justify-content: space-between; text-align: center;">
+        <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
+            <p style="font-size: 13px; color: var(--text-dim);">+2h</p>
+            <i class="fa-solid fa-cloud" style="font-size: 28px; margin: 15px 0;"></i>
+            <h3>{{ ((lstm_prediction | float) - 1.5)|round(1) }}°</h3>
+        </div>
+        <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
+            <p style="font-size: 13px; color: var(--text-dim);">+4h</p>
+            <i class="fa-solid fa-wind ani-wind" style="font-size: 28px; margin: 15px 0;"></i>
+            <h3>{{ ((lstm_prediction | float) - 2.8)|round(1) }}°</h3>
+        </div>
+        <div style="flex: 1;">
+            <p style="font-size: 13px; color: var(--text-dim);">+6h</p>
+            <i class="fa-solid fa-moon" style="font-size: 28px; margin: 15px 0;"></i>
+            <h3>{{ ((lstm_prediction | float) - 4.2)|round(1) }}°</h3>
         </div>
     </div>
 </div>
