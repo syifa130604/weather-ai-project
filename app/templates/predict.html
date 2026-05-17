@@ -5,107 +5,62 @@
     <h1 class="title">🌦 Weather Prediction AI</h1>
     <p class="subtitle">Multi-Algorithm Atmospheric Analysis</p>
     
-    <form id="predictionForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <input type="number" step="any" name="temp_avg" placeholder="Avg Temp" required>
-        <input type="number" step="any" name="temp_max" placeholder="Max Temp" required>
-        <input type="number" step="any" name="temp_min" placeholder="Min Temp" required>
-        <input type="number" step="any" name="press" placeholder="Pressure" required>
-        <input type="number" step="any" name="humid_avg" placeholder="Humidity" required>
-        <input type="number" step="any" name="ws_avg" placeholder="Wind Speed" required>
-        <input type="number" step="any" name="max_ws" placeholder="Max Wind" required>
-        <input type="number" step="any" name="light_hour" placeholder="Light Hours" required>
-        <button type="submit" id="submitBtn" style="grid-column: span 2; cursor: pointer;">ANALYZE ATMOSPHERE</button>
+    <form action="" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <input type="number" step="any" name="temp_avg" placeholder="Avg Temp" required value="{{ request.form['temp_avg'] if request.form['temp_avg'] else '' }}">
+        <input type="number" step="any" name="temp_max" placeholder="Max Temp" required value="{{ request.form['temp_max'] if request.form['temp_max'] else '' }}">
+        <input type="number" step="any" name="temp_min" placeholder="Min Temp" required value="{{ request.form['temp_min'] if request.form['temp_min'] else '' }}">
+        <input type="number" step="any" name="press" placeholder="Pressure" required value="{{ request.form['press'] if request.form['press'] else '' }}">
+        <input type="number" step="any" name="humid_avg" placeholder="Humidity" required value="{{ request.form['humid_avg'] if request.form['humid_avg'] else '' }}">
+        <input type="number" step="any" name="ws_avg" placeholder="Wind Speed" required value="{{ request.form['ws_avg'] if request.form['ws_avg'] else '' }}">
+        <input type="number" step="any" name="max_ws" placeholder="Max Wind" required value="{{ request.form['max_ws'] if request.form['max_ws'] else '' }}">
+        <input type="number" step="any" name="light_hour" placeholder="Light Hours" required value="{{ request.form['light_hour'] if request.form['light_hour'] else '' }}">
+        <button type="submit" style="grid-column: span 2; cursor: pointer;">ANALYZE ATMOSPHERE</button>
     </form>
 </div>
 
-<div id="resultContainer">
-    {% if lr_prediction is not none %}
-    <div class="status-box">
-        <div class="big-icon">
-            {% if "Cerah" in weather_status %}<i class="fa-solid fa-sun ani-sun"></i>
-            {% elif "Hujan" in weather_status %}<i class="fa-solid fa-cloud-showers-heavy ani-rain"></i>
-            {% elif "Badai" in weather_status %}<i class="fa-solid fa-cloud-bolt ani-bolt"></i>
-            {% else %}<i class="fa-solid fa-cloud"></i>{% endif %}
-        </div>
-        <h1 style="font-size: 55px; margin-bottom: 10px;">{{ weather_status }}</h1>
-        <p>Confidence Level based on <b>{{ best_model }}</b></p>
+{% if weather_status %}
+<div class="status-box" style="margin-top: 20px;">
+    <h1 style="font-size: 32px; margin-bottom: 10px; color: #ff4757;">{{ weather_status }}</h1>
+    <p>Status Konsensus Terakhir / Catatan Sistem</p>
+</div>
+{% endif %}
 
-        <div style="margin-top: 30px; background: rgba(0,0,0,0.2); border-radius: 20px; height: 15px; width: 80%; margin-left: 10%; overflow: hidden;">
-            <div style="width: {{ lstm_prediction }}%; background: var(--accent-blue); height: 100%; transition: 1.5s ease-in-out; box-shadow: 0 0 15px var(--accent-blue);"></div>
-        </div>
-        <p style="margin-top: 10px; font-size: 14px;">Prediction Intensity: {{ lstm_prediction }}%</p>
+{% if lr_prediction is not none and lr_prediction != 'error' %}
+<div class="status-box" style="margin-top: 20px;">
+    <div class="big-icon">
+        {% if "Cerah" in weather_status %}<i class="fa-solid fa-sun ani-sun"></i>
+        {% elif "Hujan" in weather_status %}<i class="fa-solid fa-cloud-showers-heavy ani-rain"></i>
+        {% elif "Badai" in weather_status %}<i class="fa-solid fa-cloud-bolt ani-bolt"></i>
+        {% else %}<i class="fa-solid fa-cloud"></i>{% endif %}
     </div>
+    <p>Confidence Level based on <b>{{ best_model }}</b></p>
 
-    <div class="card" style="margin-top: 20px;">
-        <h3 style="margin-bottom: 20px; color: var(--accent-blue);">Algorithm Comparison Details</h3>
-        <div class="weather-grid">
-            <div class="mini-card">
-                <p>Linear Reg.</p>
-                <h2 style="color: #3498db;">{{ lr_prediction }}</h2>
-            </div>
-            <div class="mini-card">
-                <p>ANN</p>
-                <h2 style="color: #9b59b6;">{{ ann_prediction }}</h2>
-            </div>
-            <div class="mini-card">
-                <p>LSTM (RNN)</p>
-                <h2 style="color: #f1c40f;">{{ lstm_prediction }}</h2>
-            </div>
-            <div class="mini-card">
-                <p>Backprop</p>
-                <h2 style="color: #e67e22;">{{ backprop_prediction }}</h2>
-            </div>
-        </div>
+    <div style="margin-top: 30px; background: rgba(0,0,0,0.2); border-radius: 20px; height: 15px; width: 80%; margin-left: 10%; overflow: hidden;">
+        <div style="width: {{ lstm_prediction }}%; background: var(--accent-blue); height: 100%; transition: 1.5s ease-in-out; box-shadow: 0 0 15px var(--accent-blue);"></div>
     </div>
-    {% endif %}
+    <p style="margin-top: 10px; font-size: 14px;">Prediction Intensity: {{ lstm_prediction }}%</p>
 </div>
 
-<script>
-document.getElementById('predictionForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // Menghentikan penanganan bawaan browser yang suka macet
-    
-    const btn = document.getElementById('submitBtn');
-    const container = document.getElementById('resultContainer');
-    
-    btn.innerText = "PROCESSING ATMOSPHERE...";
-    btn.disabled = true;
-    btn.style.opacity = "0.6";
-
-    // Mengambil data dari seluruh input box
-    const formData = new FormData(this);
-
-    // Menembak langsung rute /predict via Fetch API
-    fetch('/predict', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Server merespon dengan status: ' + response.status);
-        }
-        return response.text(); // Mengambil template HTML hasil dari Flask
-    })
-    .then(html => {
-        // Ekstrak bagian hasil saja dan masukkan ke dalam container halaman tanpa refresh
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newResult = doc.getElementById('resultContainer');
-        
-        if (newResult && newResult.innerHTML.trim() !== "") {
-            container.innerHTML = newResult.innerHTML;
-        } else {
-            container.innerHTML = `<div class="card" style="margin-top:20px; border-left: 5px solid red;"><h3 style="color:red;">⚠️ Sistem Gagal</h3><p>Data terkirim, namun backend tidak mengembalikan visual hasil. Periksa log Hugging Face kamu.</p></div>`;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        container.innerHTML = `<div class="card" style="margin-top:20px; border-left: 5px solid red;"><h3 style="color:red;">⚠️ Koneksi Terblokir Browser</h3><p>Detail Kendala: ${error.message}. Pastikan kamu mengakses lewat Direct Link .hf.space, bukan di dalam dashboard utama Hugging Face.</p></div>`;
-    })
-    .finally(() => {
-        btn.innerText = "ANALYZE ATMOSPHERE";
-        btn.disabled = false;
-        btn.style.opacity = "1";
-    });
-});
-</script>
+<div class="card" style="margin-top: 20px;">
+    <h3 style="margin-bottom: 20px; color: var(--accent-blue);">Algorithm Comparison Details</h3>
+    <div class="weather-grid">
+        <div class="mini-card">
+            <p>Linear Reg.</p>
+            <h2 style="color: #3498db;">{{ lr_prediction }}</h2>
+        </div>
+        <div class="mini-card">
+            <p>ANN</p>
+            <h2 style="color: #9b59b6;">{{ ann_prediction }}</h2>
+        </div>
+        <div class="mini-card">
+            <p>LSTM (RNN)</p>
+            <h2 style="color: #f1c40f;">{{ lstm_prediction }}</h2>
+        </div>
+        <div class="mini-card">
+            <p>Backprop</p>
+            <h2 style="color: #e67e22;">{{ backprop_prediction }}</h2>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
