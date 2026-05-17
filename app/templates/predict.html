@@ -5,7 +5,7 @@
     <h1 class="title">🌦 Weather Prediction AI</h1>
     <p class="subtitle">Multi-Algorithm Atmospheric Analysis</p>
     
-    <form action="/predict" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+    <form action="predict" method="POST" id="predictionForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
         <input type="number" step="any" name="temp_avg" placeholder="Avg Temp" required>
         <input type="number" step="any" name="temp_max" placeholder="Max Temp" required>
         <input type="number" step="any" name="temp_min" placeholder="Min Temp" required>
@@ -14,7 +14,7 @@
         <input type="number" step="any" name="ws_avg" placeholder="Wind Speed" required>
         <input type="number" step="any" name="max_ws" placeholder="Max Wind" required>
         <input type="number" step="any" name="light_hour" placeholder="Light Hours" required>
-        <button type="submit" style="grid-column: span 2;">ANALYZE ATMOSPHERE</button>
+        <button type="submit" style="grid-column: span 2; cursor: pointer;">ANALYZE ATMOSPHERE</button>
     </form>
 </div>
 
@@ -78,4 +78,12 @@
     </div>
 </div>
 {% endif %}
+
+<script>
+document.getElementById('predictionForm').addEventListener('submit', function() {
+    const btn = this.querySelector('button[type="submit"]');
+    btn.innerText = "PROCESSING ATMOSPHERE...";
+    btn.style.opacity = "0.6";
+});
+</script>
 {% endblock %}
