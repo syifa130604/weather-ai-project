@@ -55,20 +55,21 @@ except Exception as e:
 def home():
     return render_template('home.html')
 
-@app.route('/predict-page')
-def predict_page():
-    return render_template('predict.html')
-
 @app.route('/visualization')
 def visualization():
     return render_template('visualization.html')
 
 # =========================================
-# ROUTE - PREDICTION LOGIC (ANTI-CRASH)
+# ROUTE - PREDICTION PAGE & LOGIC (TERPADU)
 # =========================================
 
-@app.route('/predict', methods=['POST'])
-def predict():
+@app.route('/predict-page', methods=['GET', 'POST'])
+def predict_page():
+    # JIKA USER BARU MEMBUKA HALAMAN (GET)
+    if request.method == 'GET':
+        return render_template('predict.html', weather_status=None)
+        
+    # JIKA USER MENEKAN TOMBOL ANALISIS (POST)
     try:
         # 1. Pastikan komponen dasar paling krusial (Scaler) ter-load
         if scaler is None:
@@ -160,46 +161,4 @@ def predict():
         return render_template(
             'predict.html',
             weather_status=status,
-            lr_prediction=round(lr_p, 2) if lr_p != 0 else 0.01,
-            ann_prediction=round(ann_p, 2),
-            lstm_prediction=round(lstm_p, 2),
-            backprop_prediction=round(backprop_p, 2),
-            kmeans_prediction=km_p,
-            best_model=dynamic_best_model
-        )
-    except Exception as e:
-        import traceback
-        error_details = traceback.format_exc()
-        print(f"Prediction Error:\n{error_details}")
-        
-        return render_template(
-            'predict.html', 
-            weather_status=f"⚠️ Kalkulasi Gagal: {str(e)}",
-            lr_prediction='error', 
-            ann_prediction=0,
-            lstm_prediction=0,
-            backprop_prediction=0,
-            kmeans_prediction=0,
-            best_model="Internal Crash Handler"
-        )
-
-# =========================================
-# ROUTE - MODEL COMPARISON
-# =========================================
-
-@app.route('/comparison')
-def comparison():
-    csv_file = os.path.join(DOCS_PATH, 'model_comparison.csv')
-    try:
-        if os.path.exists(csv_file):
-            df = pd.read_csv(csv_file)
-            comparison_data = df.to_dict(orient='records')
-            return render_template('comparison.html', comparison=comparison_data)
-        else:
-            return render_template('comparison.html', comparison=[])
-    except Exception as e:
-        print(f"Error Reading CSV: {e}")
-        return render_template('comparison.html', comparison=[])
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+            lr_prediction=round(lr_p, 2
