@@ -134,8 +134,11 @@ def predict():
             best_model=dynamic_best_model # Hasil ini akan berubah sesuai data input
         )
     except Exception as e:
-        print(f"Prediction Error: {e}")
-        return render_template('predict.html', weather_status=f"Error dalam perhitungan: {e}")
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Prediction Error:\n{error_details}")
+        # Mengembalikan string error spesifik ke template agar langsung terbaca di halaman web
+        return render_template('predict.html', weather_status=f"Error: {str(e)}")
 
 # =========================================
 # ROUTE - MODEL COMPARISON
