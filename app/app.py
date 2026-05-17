@@ -3,7 +3,12 @@ import numpy as np
 import pandas as pd
 import joblib
 import os
-from tensorflow.keras.models import load_model
+
+# Mengamankan import tensorflow agar jika env bermasalah, aplikasi tidak langsung mati
+try:
+    from tensorflow.keras.models import load_model
+except ImportError:
+    load_model = None
 
 # =========================================
 # INITIALIZATION
@@ -15,17 +20,30 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, '..', 'models')
 DOCS_PATH = os.path.join(BASE_DIR, '..', 'docs')
 
+# Inisialisasi variabel model sebagai None terlebih dahulu
+lr_model = ann_model = lstm_model = backprop_model = kmeans_model = scaler = None
+
 # =========================================
 # LOAD MODELS & SCALER
 # =========================================
 try:
     # Memuat 5 Algoritma: ANN, Backpro, LSTM (RNN), Linear Regression, K-Means
-    lr_model = joblib.load(os.path.join(MODEL_PATH, 'linear_regression.pkl'))
-    ann_model = load_model(os.path.join(MODEL_PATH, 'ann_model.h5'), compile=False)
-    lstm_model = load_model(os.path.join(MODEL_PATH, 'lstm_model.h5'), compile=False)
-    backprop_model = load_model(os.path.join(MODEL_PATH, 'backpropagation_model.h5'), compile=False)
-    kmeans_model = joblib.load(os.path.join(MODEL_PATH, 'kmeans_model.pkl'))
-    scaler = joblib.load(os.path.join(MODEL_PATH, 'scaler.pkl'))
+    if os.path.exists(os.path.join(MODEL_PATH, 'linear_regression.pkl')):
+        lr_model = joblib.load(os.path.join(MODEL_PATH, 'linear_regression.pkl'))
+        
+    if load_model is not None:
+        if os.path.exists(os.path.join(MODEL_PATH, 'ann_model.h5')):
+            ann_model = load_model(os.path.join(MODEL_PATH, 'ann_model.h5'), compile=False)
+        if os.path.exists(os.path.join(MODEL_PATH, 'lstm_model.h5')):
+            lstm_model = load_model(os.path.join(MODEL_PATH, 'lstm_model.h5'), compile=False)
+        if os.path.exists(os.path.join(MODEL_PATH, 'backpropagation_model.h5')):
+            backprop_model = load_model(os.path.join(MODEL_PATH, 'backpropagation_model.h5'), compile=False)
+            
+    if os.path.exists(os.path.join(MODEL_PATH, 'kmeans_model.pkl')):
+        kmeans_model = joblib.load(os.path.join(MODEL_PATH, 'kmeans_model.pkl'))
+        
+    if os.path.exists(os.path.join(MODEL_PATH, 'scaler.pkl')):
+        scaler = joblib.load(os.path.join(MODEL_PATH, 'scaler.pkl'))
 except Exception as e:
     print(f"Error Loading Models: {e}")
 
@@ -52,6 +70,10 @@ def visualization():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        # Validasi jika model keras atau scaler gagal dimuat
+        if None in [lr_model, ann_model, lstm_model, backprop_model, kmeans_model, scaler]:
+            return render_template('predict.html', weather_status="Error: Model AI belum siap atau gagal dimuat.")
+
         # 1. Mengambil input dari form
         inputs = [
             float(request.form['temp_avg']),
@@ -113,7 +135,7 @@ def predict():
         )
     except Exception as e:
         print(f"Prediction Error: {e}")
-        return render_template('predict.html', weather_status="Error dalam perhitungan")
+        return render_template('predict.html', weather_status=f"Error dalam perhitungan: {e}")
 
 # =========================================
 # ROUTE - MODEL COMPARISON
@@ -134,4 +156,5 @@ def comparison():
         return render_template('comparison.html', comparison=[])
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Menambahkan host='0.0.0.0' dan port agar kompatibel jika di-run di Hugging Face local space docker / server backend
+    app.run(host='0.0.0.0', port=5000, debug=True)
