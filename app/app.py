@@ -4,10 +4,10 @@ import pandas as pd
 import joblib
 import os
 
-# Mengamankan import tensorflow agar jika env bermasalah, aplikasi tidak langsung mati
+# Mengamankan import tensorflow dari issue memory limit / version mismatch di Hugging Face
 try:
     from tensorflow.keras.models import load_model
-except ImportError:
+except Exception as e:
     load_model = None
 
 # =========================================
@@ -15,19 +15,17 @@ except ImportError:
 # =========================================
 app = Flask(__name__)
 
-# Mengatur path folder agar fleksibel
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, '..', 'models')
 DOCS_PATH = os.path.join(BASE_DIR, '..', 'docs')
 
-# Inisialisasi variabel model sebagai None terlebih dahulu
+# Inisialisasi variabel global untuk menampung arsitektur model
 lr_model = ann_model = lstm_model = backprop_model = kmeans_model = scaler = None
 
 # =========================================
-# LOAD MODELS & SCALER
+# LOAD MODELS & SCALER (SAFE LOADING)
 # =========================================
 try:
-    # Memuat 5 Algoritma: ANN, Backpro, LSTM (RNN), Linear Regression, K-Means
     if os.path.exists(os.path.join(MODEL_PATH, 'linear_regression.pkl')):
         lr_model = joblib.load(os.path.join(MODEL_PATH, 'linear_regression.pkl'))
         
@@ -45,7 +43,7 @@ try:
     if os.path.exists(os.path.join(MODEL_PATH, 'scaler.pkl')):
         scaler = joblib.load(os.path.join(MODEL_PATH, 'scaler.pkl'))
 except Exception as e:
-    print(f"Error Loading Models: {e}")
+    print(f"Safe Load Warning: {str(e)}")
 
 # =========================================
 # ROUTES - NAVIGATION
@@ -60,60 +58,58 @@ def visualization():
     return render_template('visualization.html')
 
 # =========================================
-# ROUTE - PREDICTION PAGE & LOGIC (TERPADU)
+# ROUTE - PREDICTION SYSTEM (ALL-IN-ONE)
 # =========================================
 
 @app.route('/predict-page', methods=['GET', 'POST'])
 def predict_page():
-    # JIKA USER BARU MEMBUKA HALAMAN (GET)
+    # 1. JIKA DIAKSES BIASA (GET METHOD)
     if request.method == 'GET':
-        return render_template('predict.html', weather_status=None)
-        
-    # JIKA USER MENEKAN TOMBOL ANALISIS (POST)
+        return render_template('predict.html', weather_status=None, lr_prediction=None)
+
+    # 2. JIKA DIKLIK TOMBOL ANALISIS (POST METHOD)
     try:
-        # 1. Pastikan komponen dasar paling krusial (Scaler) ter-load
+        # Cek ketersediaan Scaler
         if scaler is None:
             return render_template(
-                'predict.html', 
-                weather_status="⚠️ Gagal: Komponen pre-processing 'scaler.pkl' tidak ditemukan atau gagal dimuat di server.",
-                lr_prediction='error', ann_prediction=0, lstm_prediction=0, backprop_prediction=0, kmeans_prediction=0,
-                best_model="System Pre-check"
+                'predict.html',
+                weather_status="⚠️ Gagal: Berkas 'scaler.pkl' tidak terbaca di server backend.",
+                lr_prediction='error', ann_prediction=0, lstm_prediction=0, backprop_prediction=0, kmeans_prediction=0, best_model="System"
             )
 
-        # 2. Mengambil input dari form secara aman
-        inputs = [
-            float(request.form.get('temp_avg', 0)),
-            float(request.form.get('temp_max', 0)),
-            float(request.form.get('temp_min', 0)),
-            float(request.form.get('press', 0)),
-            float(request.form.get('humid_avg', 0)),
-            float(request.form.get('ws_avg', 0)),
-            float(request.form.get('max_ws', 0)),
-            float(request.form.get('light_hour', 0))
-        ]
+        # Mengambil data input formulir secara aman dengan default value 0.0 jika kosong
+        temp_avg = float(request.form.get('temp_avg', 0) or 0)
+        temp_max = float(request.form.get('temp_max', 0) or 0)
+        temp_min = float(request.form.get('temp_min', 0) or 0)
+        press = float(request.form.get('press', 0) or 0)
+        humid_avg = float(request.form.get('humid_avg', 0) or 0)
+        ws_avg = float(request.form.get('ws_avg', 0) or 0)
+        max_ws = float(request.form.get('max_ws', 0) or 0)
+        light_hour = float(request.form.get('light_hour', 0) or 0)
+
+        inputs = [temp_avg, temp_max, temp_min, press, humid_avg, ws_avg, max_ws, light_hour]
         
-        # 3. Preprocessing & Scaling
+        # Transformasi Data
         data_array = np.array([inputs])
         scaled_data = scaler.transform(data_array)
 
-        # 4. Eksekusi Prediksi dengan Proteksi Fallback Mandiri
         results = {}
-        
-        # Linear Regression
+
+        # Kalkulasi Linear Regression (Sebagai backup utama jika Deep Learning crash)
         if lr_model is not None:
             lr_p = float(lr_model.predict(scaled_data)[0])
             results["Regresi Linear"] = lr_p
         else:
             lr_p = 0.0
 
-        # ANN
+        # Kalkulasi ANN
         if ann_model is not None:
             ann_p = float(ann_model.predict(scaled_data)[0][0])
             results["ANN (Neural Network)"] = ann_p
         else:
             ann_p = 0.0
 
-        # LSTM
+        # Kalkulasi LSTM
         if lstm_model is not None:
             lstm_in = scaled_data.reshape((scaled_data.shape[0], 1, scaled_data.shape[1]))
             lstm_p = float(lstm_model.predict(lstm_in)[0][0])
@@ -121,33 +117,28 @@ def predict_page():
         else:
             lstm_p = 0.0
 
-        # Backpropagation
+        # Kalkulasi Backpropagation
         if backprop_model is not None:
-            backprop_p = float(backprop_model.predict(scaled_data)[0][0])
-            results["Backpropagation"] = backprop_p
+            bp_p = float(backprop_model.predict(scaled_data)[0][0])
+            results["Backpropagation"] = bp_p
         else:
-            backprop_p = 0.0
-            
-        # K-Means
-        if kmeans_model is not None:
-            km_p = int(kmeans_model.predict(scaled_data[:, :4])[0])
-        else:
-            km_p = 0
+            bp_p = 0.0
 
-        # Validasi jika sama sekali tidak ada model AI yang aktif
+        # Kalkulasi K-Means
+        km_p = int(kmeans_model.predict(scaled_data[:, :4])[0]) if kmeans_model is not None else 0
+
+        # Proteksi jika seluruh model gagal dimuat
         if not results:
             return render_template(
-                'predict.html', 
-                weather_status="⚠️ Gagal: Seluruh berkas model (.h5 atau .pkl) gagal dimuat oleh sistem server.",
-                lr_prediction='error', ann_prediction=0, lstm_prediction=0, backprop_prediction=0, kmeans_prediction=0,
-                best_model="Model Check Failure"
+                'predict.html',
+                weather_status="⚠️ Gagal: Seluruh model (.h5/.pkl) gagal dimuat di server Hugging Face.",
+                lr_prediction='error', ann_prediction=0, lstm_prediction=0, backprop_prediction=0, kmeans_prediction=0, best_model="System"
             )
 
-        # 5. Logika Pemilihan "Best Model" Secara Dinamis dari model yang aktif
+        # Menghitung Rata-rata Konsensus Penentuan Status Cuaca
         avg_all = sum(results.values()) / len(results)
         dynamic_best_model = min(results, key=lambda k: abs(results[k] - avg_all))
 
-        # 6. Penentuan Status Cuaca
         if avg_all < 20:
             status = "☀️ Cerah"
         elif avg_all < 50:
@@ -157,8 +148,43 @@ def predict_page():
         else:
             status = "⛈️ Badai"
 
-        # Variabel lr_prediction dikondisikan agar tidak bernilai None murni agar lolos sensor if HTML kamu
         return render_template(
             'predict.html',
             weather_status=status,
-            lr_prediction=round(lr_p, 2
+            lr_prediction=round(lr_p, 2) if lr_p != 0 else 0.01,
+            ann_prediction=round(ann_p, 2),
+            lstm_prediction=round(lstm_p, 2),
+            backprop_prediction=round(bp_p, 2),
+            kmeans_prediction=km_p,
+            best_model=dynamic_best_model
+        )
+
+    except Exception as e:
+        import traceback
+        print(f"Fatal Prediction Crash:\n{traceback.format_exc()}")
+        return render_template(
+            'predict.html',
+            weather_status=f"⚠️ Gagal Eksekusi: {str(e)}",
+            lr_prediction='error', ann_prediction=0, lstm_prediction=0, backprop_prediction=0, kmeans_prediction=0, best_model="Crash Handler"
+        )
+
+# =========================================
+# ROUTE - MODEL COMPARISON
+# =========================================
+
+@app.route('/comparison')
+def comparison():
+    csv_file = os.path.join(DOCS_PATH, 'model_comparison.csv')
+    try:
+        if os.path.exists(csv_file):
+            df = pd.read_csv(csv_file)
+            comparison_data = df.to_dict(orient='records')
+            return render_template('comparison.html', comparison=comparison_data)
+        else:
+            return render_template('comparison.html', comparison=[])
+    except Exception as e:
+        print(f"Error Reading CSV: {e}")
+        return render_template('comparison.html', comparison=[])
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=7860, debug=True)
