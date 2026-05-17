@@ -18,7 +18,7 @@
     </form>
 </div>
 
-{% if lr_prediction %}
+{% if lr_prediction is not none %}
 <div class="status-box">
     <div class="big-icon">
         {% if "Cerah" in weather_status %}<i class="fa-solid fa-sun ani-sun"></i>
@@ -63,17 +63,17 @@
         <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
             <p style="font-size: 13px; color: var(--text-dim);">+2h</p>
             <i class="fa-solid fa-cloud" style="font-size: 28px; margin: 15px 0;"></i>
-            <h3>{{ (lstm_prediction - 1.5)|round(1) }}°</h3>
+            <h3>{{ ((lstm_prediction | float) - 1.5)|round(1) }}°</h3>
         </div>
         <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.1);">
             <p style="font-size: 13px; color: var(--text-dim);">+4h</p>
             <i class="fa-solid fa-wind ani-wind" style="font-size: 28px; margin: 15px 0;"></i>
-            <h3>{{ (lstm_prediction - 2.8)|round(1) }}°</h3>
+            <h3>{{ ((lstm_prediction | float) - 2.8)|round(1) }}°</h3>
         </div>
         <div style="flex: 1;">
             <p style="font-size: 13px; color: var(--text-dim);">+6h</p>
             <i class="fa-solid fa-moon" style="font-size: 28px; margin: 15px 0;"></i>
-            <h3>{{ (lstm_prediction - 4.2)|round(1) }}°</h3>
+            <h3>{{ ((lstm_prediction | float) - 4.2)|round(1) }}°</h3>
         </div>
     </div>
 </div>
