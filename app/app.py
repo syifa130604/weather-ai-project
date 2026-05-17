@@ -72,7 +72,16 @@ def predict():
     try:
         # Validasi jika model keras atau scaler gagal dimuat
         if None in [lr_model, ann_model, lstm_model, backprop_model, kmeans_model, scaler]:
-            return render_template('predict.html', weather_status="Error: Model AI belum siap atau gagal dimuat.")
+            return render_template(
+                'predict.html', 
+                weather_status="⚠️ Gagal: Ada file model (.pkl/.h5) atau scaler yang tidak ditemukan/gagal dimuat di folder models.",
+                lr_prediction='error',
+                ann_prediction=0,
+                lstm_prediction=0,
+                backprop_prediction=0,
+                kmeans_prediction=0,
+                best_model="System Validation"
+            )
 
         # 1. Mengambil input dari form
         inputs = [
@@ -131,14 +140,24 @@ def predict():
             lstm_prediction=round(lstm_p, 2),
             backprop_prediction=round(bp_p, 2),
             kmeans_prediction=km_p,
-            best_model=dynamic_best_model # Hasil ini akan berubah sesuai data input
+            best_model=dynamic_best_model
         )
     except Exception as e:
         import traceback
         error_details = traceback.format_exc()
         print(f"Prediction Error:\n{error_details}")
-        # Mengembalikan string error spesifik ke template agar langsung terbaca di halaman web
-        return render_template('predict.html', weather_status=f"Error: {str(e)}")
+        
+        # Mengirimkan variabel dummy agar blok hasil di HTML tidak tersembunyi, sehingga teks error terbaca di layar web
+        return render_template(
+            'predict.html', 
+            weather_status=f"⚠️ Kalkulasi Gagal: {str(e)}",
+            lr_prediction='error', 
+            ann_prediction=0,
+            lstm_prediction=0,
+            backprop_prediction=0,
+            kmeans_prediction=0,
+            best_model="Internal Crash Handler"
+        )
 
 # =========================================
 # ROUTE - MODEL COMPARISON
